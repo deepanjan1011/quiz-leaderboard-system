@@ -50,8 +50,8 @@ src/main/java/com/quizleaderboard/
 **Prerequisites:** Java 17+, Maven 3.6+
 
 ```bash
-git clone https://github.com/deepanjan1011/quiz-leaderboard.git
-cd quiz-leaderboard
+git clone https://github.com/deepanjan1011/quiz-leaderboard-system.git
+cd quiz-leaderboard-system
 ```
 
 **Run directly:**
