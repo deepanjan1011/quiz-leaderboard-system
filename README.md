@@ -1,22 +1,22 @@
 # Quiz Leaderboard System
 
-A plain Java console app that polls a quiz API, deduplicates overlapping event data across poll windows, aggregates scores per participant, builds a ranked leaderboard, and submits the final result to a validator endpoint. No frameworks — just Java 17, Maven, and Gson.
+A plain Java console app that polls a quiz API, deduplicates overlapping event data across poll windows, aggregates scores per participant, builds a ranked leaderboard, and submits the final result to a validator endpoint. No frameworks, just Java 17, Maven, and Gson.
 
 ---
 
 ## How It Works
 
-1. **Poll** — Makes 10 sequential GET requests to `/quiz/messages` (poll=0 through poll=9), with a mandatory 5-second delay between each call. Each response contains a list of quiz events.
+1. **Poll** - Makes 10 sequential GET requests to `/quiz/messages` (poll=0 through poll=9), with a mandatory 5 sec delay between each call. Each response contains a list of quiz events.
 
-2. **Collect** — All events from all 10 poll responses are flattened into a single list.
+2. **Collect** - All events from all 10 poll responses are flattened into a single list.
 
-3. **Deduplicate** — Events are deduplicated using a composite key of `roundId + "|" + participant`. In distributed systems, the same event can appear in multiple poll windows — keeping duplicates would inflate scores. Only the first occurrence of each key is kept.
+3. **Deduplicate** - Events are deduplicated using a composite key of `roundId + "|" + participant`. In distributed systems, the same event can appear in multiple poll windows - keeping duplicates would inflate scores. Only the first occurrence of each key is kept.
 
-4. **Aggregate** — Scores are summed per participant across all their unique round events.
+4. **Aggregate** - Scores are summed per participant across all their unique round events.
 
-5. **Rank** — Participants are sorted by total score in descending order.
+5. **Rank** - Participants are sorted by total score in descending order.
 
-6. **Submit** — The final leaderboard is POSTed to `/quiz/submit` as JSON.
+6. **Submit** - The final leaderboard is POSTed to `/quiz/submit` as JSON.
 
 ---
 
@@ -65,7 +65,7 @@ mvn clean package
 java -jar target/quiz-leaderboard-1.0-SNAPSHOT.jar
 ```
 
-Note: the run takes about 45 seconds — 10 polls with a 5-second mandatory delay between each one.
+Note: the run takes about 45 sec - 10 polls with a 5 sec mandatory delay between each one.
 
 ---
 
@@ -103,4 +103,4 @@ Done.
 
 ## Deduplication Strategy
 
-The quiz API is designed to return overlapping data — the same event can show up in multiple poll windows. If you naively sum all scores across all polls without deduplicating, you end up inflating totals significantly. The fix is straightforward: before aggregating anything, assign each event a composite key of `roundId + "|" + participant`. This uniquely identifies a participant's score for a specific round. A `HashSet` tracks which keys have already been seen, and any event whose key has already appeared is discarded. Only the first occurrence is kept. This reduced the raw event count from 15 down to 9 in the actual run above.
+The quiz API is designed to return overlapping data, the same event can show up in multiple poll windows. If you naively sum all scores across all polls without deduplicating, you end up inflating totals significantly. The fix is straightforward: before aggregating anything, assign each event a composite key of `roundId + "|" + participant`. This uniquely identifies a participant's score for a specific round. A `HashSet` tracks which keys have already been seen, and any event whose key has already appeared is discarded. Only the first occurrence is kept. This reduced the raw event count from 15 down to 9 in the actual run above.
